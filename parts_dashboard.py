@@ -42,16 +42,16 @@ if uploaded_file:
         df["כמות בפועל"] = pd.to_numeric(df["כמות בפועל"], errors="coerce").fillna(0)
 
         # Sidebar filters
-        st.sidebar.header("📊 Filters")
+        st.header("📊 Filters")
         techs = df["לטיפול"].dropna().unique()
         customers = df["שם לקוח"].dropna().unique()
         part_names = df["תאור מוצר - חלק"].dropna().unique()
         systems = df["סוג מערכת"].dropna().unique()
 
-        selected_techs = st.sidebar.multiselect("👨‍🔧 Select Technicians", options=techs, default=techs)
-        selected_customers = st.sidebar.multiselect("🏥 Select Customers", options=customers, default=customers)
-        selected_parts = st.sidebar.multiselect("🔩 Select Part Descriptions", options=part_names, default=part_names)
-        selected_systems = st.sidebar.multiselect("📦 Select System Types", options=systems, default=systems)
+        selected_techs = st.multiselect("👨‍🔧 Select Technicians", options=techs, default=techs)
+        selected_customers = st.multiselect("🏥 Select Customers", options=customers, default=customers)
+        selected_parts = st.multiselect("🔩 Select Part Descriptions", options=part_names, default=part_names)
+        selected_systems = st.multiselect("📦 Select System Types", options=systems, default=systems)
 
         filtered_df = df[
             (df["לטיפול"].isin(selected_techs)) &
