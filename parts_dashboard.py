@@ -32,7 +32,7 @@ if uploaded_file:
             elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
                 return "R110", "R110 Return Unit"
             else:
-                return row.get("מק"ט בטיפול", ""), row.get("תאור מוצר בטיפול", "")
+                return row.get("מק"ט בטיפול", ""), row.get('תאור מוצר בטיפול', "")
 
         df[["סוג מערכת", "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
         df["כמות בפועל"] = pd.to_numeric(df["כמות בפועל"], errors="coerce").fillna(0)
