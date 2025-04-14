@@ -1,9 +1,9 @@
 import streamlit as st
-st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
 import pandas as pd
-import plotly.express as px
-
+from io import BytesIO
 from PIL import Image
+
+st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
 
 try:
     logo = Image.open("logo.png")
@@ -11,9 +11,7 @@ try:
 except:
     st.warning("🔧 Logo not found.")
 
-
-
-st.title("🔧 Spare Parts Usage Dashboard")
+st.title("🔧 Spare Parts Usage Summary")
 
 uploaded_file = st.file_uploader("📤 Upload Spare Parts Excel File", type=["xlsx"])
 if uploaded_file:
@@ -21,9 +19,8 @@ if uploaded_file:
         df = pd.read_excel(uploaded_file, sheet_name="DataSheet")
         st.success("✅ File loaded successfully.")
 
-        # Map system types based on מק"ט בטיפול
         def map_unit_category(row):
-            part_code = str(row.get('מק"ט בטיפול', "")).upper()
+            part_code = str(row.get("מק"ט בטיפול", "")).upper()
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
             elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
@@ -35,88 +32,69 @@ if uploaded_file:
             elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
                 return "R110", "R110 Return Unit"
             else:
-                return row.get('מק"ט בטיפול', ""), row.get("תאור מוצר בטיפול", "")
+                return row.get("מק"ט בטיפול", ""), row.get("תאור מוצר בטיפול", "")
 
         df[["סוג מערכת", "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
-
         df["כמות בפועל"] = pd.to_numeric(df["כמות בפועל"], errors="coerce").fillna(0)
 
-        # Sidebar filters
-        st.sidebar.header("📊 Filters")
-        techs = df["לטיפול"].dropna().unique()
-        customers = df["שם לקוח"].dropna().unique()
-        part_names = df["תאור מוצר - חלק"].dropna().unique()
-        systems = df["סוג מערכת"].dropna().unique()
-
-        selected_techs = st.sidebar.multiselect("👨‍🔧 Select Technicians", options=techs, default=techs)
-        selected_customers = st.sidebar.multiselect("🏥 Select Customers", options=customers, default=customers)
-        selected_parts = st.sidebar.multiselect("🔩 Select Part Descriptions", options=part_names, default=part_names)
-        selected_systems = st.sidebar.multiselect("📦 Select System Types", options=systems, default=systems)
-
-# Apply dropdown filters
-        if selected_tech != "All":
-            filtered_df = filtered_df[filtered_df["לטיפול"] == selected_tech]
-        if selected_customer != "All":
-            filtered_df = filtered_df[filtered_df["שם לקוח"] == selected_customer]
-        if selected_part != "All":
-            filtered_df = filtered_df[filtered_df["תאור מוצר - חלק"] == selected_part]
-        if selected_system != "All":
-            filtered_df = filtered_df[filtered_df["סוג מערכת"] == selected_system]
-        filtered_df = df[
-            (df["לטיפול"].isin(selected_techs)) &
-            (df["שם לקוח"].isin(selected_customers)) &
-            (df["תאור מוצר - חלק"].isin(selected_parts)) &
-            (df["סוג מערכת"].isin(selected_systems))
-        ]
-
-        filtered_df = df.copy()
-        st.markdown(f"📦 **Total Parts Records:** {len(filtered_df)}")
-        st.markdown(f"🧮 **Total Quantity Used:** {filtered_df['כמות בפועל'].sum():,.0f}")
-
-        # Most Used Spare Parts
-        top_parts = (
-            filtered_df.groupby(['מק"ט - חלק', "תאור מוצר - חלק"])['כמות בפועל']
+        st.header("📦 Used Spare Parts Summary")
+        parts_summary = (
+            df.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
             .sum()
             .reset_index(name="Total Used")
             .sort_values(by="Total Used", ascending=False)
         )
-        st.subheader("🔝 Most Frequently Used Spare Parts")
-        fig1 = px.bar(top_parts.head(20), x="Total Used", y="תאור מוצר - חלק", orientation='h',
-                      title="Top 20 Spare Parts by Quantity Used")
-        st.plotly_chart(fig1, use_container_width=True)
+        st.dataframe(parts_summary)
 
-        # Usage by Technician
-        st.subheader("👨‍🔧 Part Usage by Technician")
-        tech_usage = (
-            filtered_df.groupby("לטיפול")["כמות בפועל"]
-            .sum()
-            .reset_index(name="Total Used")
-            .sort_values(by="Total Used", ascending=False)
-        )
-        fig2 = px.bar(tech_usage, x="לטיפול", y="Total Used", title="Part Usage per Technician")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.header("🧰 Export Parts by System")
+        system_options = ["All"] + sorted(df["סוג מערכת"].dropna().unique())
+        selected_system = st.selectbox("Select System Type", options=system_options)
 
-        # Usage by Customer
-        st.subheader("🏥 Part Usage by Customer")
-        customer_usage = (
-            filtered_df.groupby("שם לקוח")["כמות בפועל"]
-            .sum()
-            .reset_index(name="Total Used")
-            .sort_values(by="Total Used", ascending=False)
-        )
-        fig3 = px.bar(customer_usage, x="שם לקוח", y="Total Used", title="Part Usage per Customer")
-        st.plotly_chart(fig3, use_container_width=True)
+        towrite_sys = BytesIO()
+        with pd.ExcelWriter(towrite_sys, engine="xlsxwriter") as writer:
+            if selected_system == "All":
+                for sys, group in df.groupby("סוג מערכת"):
+                    summary = (
+                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                        .sum()
+                        .reset_index(name="Total Used")
+                    )
+                    summary.to_excel(writer, sheet_name=str(sys)[:31], index=False)
+            else:
+                group = df[df["סוג מערכת"] == selected_system]
+                summary = (
+                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                    .sum()
+                    .reset_index(name="Total Used")
+                )
+                summary.to_excel(writer, sheet_name=str(selected_system)[:31], index=False)
+        towrite_sys.seek(0)
+        st.download_button("📥 Download System Summary", data=towrite_sys, file_name="parts_by_system.xlsx")
 
-        # Usage by System Type
-        st.subheader("📦 Part Usage by System Type")
-        system_usage = (
-            filtered_df.groupby("סוג מערכת")["כמות בפועל"]
-            .sum()
-            .reset_index(name="Total Used")
-            .sort_values(by="Total Used", ascending=False)
-        )
-        fig4 = px.bar(system_usage, x="סוג מערכת", y="Total Used", title="Part Usage by System")
-        st.plotly_chart(fig4, use_container_width=True)
+        st.header("👨‍🔧 Export Parts by Technician")
+        tech_options = ["All"] + sorted(df["לטיפול"].dropna().unique())
+        selected_tech = st.selectbox("Select Technician", options=tech_options)
+
+        towrite_tech = BytesIO()
+        with pd.ExcelWriter(towrite_tech, engine="xlsxwriter") as writer:
+            if selected_tech == "All":
+                for tech, group in df.groupby("לטיפול"):
+                    summary = (
+                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                        .sum()
+                        .reset_index(name="Total Used")
+                    )
+                    summary.to_excel(writer, sheet_name=str(tech)[:31], index=False)
+            else:
+                group = df[df["לטיפול"] == selected_tech]
+                summary = (
+                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                    .sum()
+                    .reset_index(name="Total Used")
+                )
+                summary.to_excel(writer, sheet_name=str(selected_tech)[:31], index=False)
+        towrite_tech.seek(0)
+        st.download_button("📥 Download Technician Summary", data=towrite_tech, file_name="parts_by_technician.xlsx")
 
     except Exception as e:
         st.error(f"❌ Failed to process file: {e}")
