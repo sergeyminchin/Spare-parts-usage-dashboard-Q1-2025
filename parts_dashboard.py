@@ -2,6 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+from PIL import Image
+st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
+
+try:
+    logo = Image.open("logo.png")
+    st.image(logo, use_container_width=False)
+except:
+    st.warning("🔧 Logo not found.")
+
+
 st.set_page_config(page_title="Spare Parts Dashboard", layout="wide")
 
 st.title("🔧 Spare Parts Usage Dashboard")
@@ -26,7 +36,7 @@ if uploaded_file:
             elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
                 return "R110", "R110 Return Unit"
             else:
-                return row["מק"ט בטיפול"], row["תאור מוצר בטיפול"]
+                return row.get('מק"ט בטיפול', ""), row.get("תאור מוצר בטיפול", "")
 
         df[["סוג מערכת", "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
 
