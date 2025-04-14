@@ -1,9 +1,10 @@
+st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 
 from PIL import Image
-st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
 
 try:
     logo = Image.open("logo.png")
@@ -12,7 +13,6 @@ except:
     st.warning("🔧 Logo not found.")
 
 
-st.set_page_config(page_title="Spare Parts Dashboard", layout="wide")
 
 st.title("🔧 Spare Parts Usage Dashboard")
 
