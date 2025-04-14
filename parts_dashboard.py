@@ -22,7 +22,7 @@ if uploaded_file:
         def map_unit_category(row):
             part_code = str(row.get('מק"ט בטיפול', '')).upper()
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
-            elif part_code == "PO-POL-A-D200/F":
+            elif part_code = "PO-POL-A-D200/F":
                 return "DX00", "DX00 Distribution Cabinet"
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
