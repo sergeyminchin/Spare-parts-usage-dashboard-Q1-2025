@@ -33,6 +33,10 @@ if uploaded_file:
                 return 'R310', 'R310 Return Unit'
             elif any(x in part_code for x in ['R11X', 'R110', 'R100', 'R110X']) and not any(x in part_code for x in ['PRO', 'P']):
                 return 'R110', 'R110 Return Unit'
+            elif part_code == 'POL-A-D200':
+                return 'DX00', 'DX00 Distribution Cabinet'
+            elif part_code == 'POL-R11I-00000A':
+                return 'R110', 'R110 Return Unit'
             else:
                 return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', '')
         df[['סוג מערכת', 'תאור מערכת']] = df.apply(map_unit_category, axis=1, result_type="expand")
