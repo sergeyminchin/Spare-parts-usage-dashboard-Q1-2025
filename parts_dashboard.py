@@ -50,16 +50,16 @@ if uploaded_file:
 
         selected_techs = selected_tech = st.selectbox("👨‍🔧 Select Technician", options=["All"] + list(techs))
         if selected_tech != "All":
-            df = df[df["לטיפול"] == selected_tech]
+            filtered_df = filtered_df[filtered_df["לטיפול"] == selected_tech]
         selected_customers = selected_customer = st.selectbox("🏥 Select Customer", options=["All"] + list(customers))
         if selected_customer != "All":
-            df = df[df["שם לקוח"] == selected_customer]
+            filtered_df = filtered_df[filtered_df["שם לקוח"] == selected_customer]
         selected_parts = selected_part = st.selectbox("🔩 Select Part Description", options=["All"] + list(part_names))
         if selected_part != "All":
-            df = df[df["תאור מוצר - חלק"] == selected_part]
+            filtered_df = filtered_df[filtered_df["תאור מוצר - חלק"] == selected_part]
         selected_systems = selected_sys = st.selectbox("📦 Select System Type", options=["All"] + list(systems))
         if selected_sys != "All":
-            df = df[df["סוג מערכת"] == selected_sys]
+            filtered_df = filtered_df[filtered_df["סוג מערכת"] == selected_sys]
 
         filtered_df = df[
             (df["לטיפול"].isin(selected_techs)) &
