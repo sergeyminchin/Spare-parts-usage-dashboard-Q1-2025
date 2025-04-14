@@ -24,6 +24,7 @@ if uploaded_file:
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
             elif part_code == "PO-POL-A-D200/F":
                 return "DX00", "DX00 Distribution Cabinet"
+            if any(x in part_code for x in ["200P", "300P", "PRO"]):
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
             elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
             elif any(x in part_code for x in ["310P", "31XP"]):
