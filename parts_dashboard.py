@@ -14,7 +14,7 @@ if uploaded_file:
 
         # Map system types based on מק"ט בטיפול
         def map_unit_category(row):
-            part_code = str(row["מק"ט בטיפול"]).upper()
+            part_code = str(row.get('מק"ט בטיפול', "")).upper()
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
             elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
