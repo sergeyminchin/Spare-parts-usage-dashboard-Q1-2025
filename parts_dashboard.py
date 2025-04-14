@@ -20,7 +20,6 @@ if uploaded_file:
     try:
         df = pd.read_excel(uploaded_file, sheet_name="DataSheet")
         st.success("✅ File loaded successfully.")
-        filtered_df = df.copy()
 
         # Map system types based on מק"ט בטיפול
         def map_unit_category(row):
@@ -43,25 +42,26 @@ if uploaded_file:
         df["כמות בפועל"] = pd.to_numeric(df["כמות בפועל"], errors="coerce").fillna(0)
 
         # Sidebar filters
-        st.header("📊 Filters")
+        st.sidebar.header("📊 Filters")
         techs = df["לטיפול"].dropna().unique()
         customers = df["שם לקוח"].dropna().unique()
         part_names = df["תאור מוצר - חלק"].dropna().unique()
         systems = df["סוג מערכת"].dropna().unique()
 
-        selected_techs = selected_tech = st.selectbox("👨‍🔧 Select Technician", options=["All"] + list(techs))
+        selected_techs = st.sidebar.multiselect("👨‍🔧 Select Technicians", options=techs, default=techs)
+        selected_customers = st.sidebar.multiselect("🏥 Select Customers", options=customers, default=customers)
+        selected_parts = st.sidebar.multiselect("🔩 Select Part Descriptions", options=part_names, default=part_names)
+        selected_systems = st.sidebar.multiselect("📦 Select System Types", options=systems, default=systems)
+
+# Apply dropdown filters
         if selected_tech != "All":
             filtered_df = filtered_df[filtered_df["לטיפול"] == selected_tech]
-        selected_customers = selected_customer = st.selectbox("🏥 Select Customer", options=["All"] + list(customers))
         if selected_customer != "All":
             filtered_df = filtered_df[filtered_df["שם לקוח"] == selected_customer]
-        selected_parts = selected_part = st.selectbox("🔩 Select Part Description", options=["All"] + list(part_names))
         if selected_part != "All":
             filtered_df = filtered_df[filtered_df["תאור מוצר - חלק"] == selected_part]
-        selected_systems = selected_sys = st.selectbox("📦 Select System Type", options=["All"] + list(systems))
-        if selected_sys != "All":
-            filtered_df = filtered_df[filtered_df["סוג מערכת"] == selected_sys]
-
+        if selected_system != "All":
+            filtered_df = filtered_df[filtered_df["סוג מערכת"] == selected_system]
         filtered_df = df[
             (df["לטיפול"].isin(selected_techs)) &
             (df["שם לקוח"].isin(selected_customers)) &
@@ -69,6 +69,7 @@ if uploaded_file:
             (df["סוג מערכת"].isin(selected_systems))
         ]
 
+        filtered_df = df.copy()
         st.markdown(f"📦 **Total Parts Records:** {len(filtered_df)}")
         st.markdown(f"🧮 **Total Quantity Used:** {filtered_df['כמות בפועל'].sum():,.0f}")
 
