@@ -20,7 +20,7 @@ if uploaded_file:
         st.success("✅ File loaded successfully.")
 
         def map_unit_category(row):
-            part_code = str(row.get("מק"ט בטיפול", "")).upper()
+            part_code = str(row.get('מק"ט בטיפול', '')).upper()
             if any(x in part_code for x in ["200P", "300P", "PRO"]):
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
             elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
@@ -32,14 +32,14 @@ if uploaded_file:
             elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
                 return "R110", "R110 Return Unit"
             else:
-                return row.get("מק"ט בטיפול", ""), row.get('תאור מוצר בטיפול', "")
+                return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', "")
 
         df[['סוג מערכת', "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
         df['כמות בפועל'] = pd.to_numeric(df['כמות בפועל'], errors="coerce").fillna(0)
 
         st.header("📦 Used Spare Parts Summary")
         parts_summary = (
-            df.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
+            df.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
             .sum()
             .reset_index(name="Total Used")
             .sort_values(by="Total Used", ascending=False)
@@ -55,7 +55,7 @@ if uploaded_file:
             if selected_system == "All":
                 for sys, group in df.groupby('סוג מערכת'):
                     summary = (
-                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
+                        group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                         .sum()
                         .reset_index(name="Total Used")
                     )
@@ -63,7 +63,7 @@ if uploaded_file:
             else:
                 group = df[df['סוג מערכת'] == selected_system]
                 summary = (
-                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
+                    group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                     .sum()
                     .reset_index(name="Total Used")
                 )
@@ -80,7 +80,7 @@ if uploaded_file:
             if selected_tech == "All":
                 for tech, group in df.groupby('לטיפול'):
                     summary = (
-                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
+                        group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                         .sum()
                         .reset_index(name="Total Used")
                     )
@@ -88,7 +88,7 @@ if uploaded_file:
             else:
                 group = df[df['לטיפול'] == selected_tech]
                 summary = (
-                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
+                    group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                     .sum()
                     .reset_index(name="Total Used")
                 )
