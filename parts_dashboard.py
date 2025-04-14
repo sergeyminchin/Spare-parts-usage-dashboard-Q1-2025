@@ -62,6 +62,18 @@ if uploaded_file:
 
         st.markdown(f"📦 **Total Parts Records:** {len(filtered_df)}")
         st.markdown(f"🧮 **Total Quantity Used:** {filtered_df['כמות בפועל'].sum():,.0f}")
+# Export final filtered data
+        from io import BytesIO
+        towrite = BytesIO()
+        with pd.ExcelWriter(towrite, engine='xlsxwriter') as writer:
+            filtered_df.to_excel(writer, index=False, sheet_name="Filtered Data")
+        towrite.seek(0)
+        st.download_button(
+            label="📥 Download Filtered Data as Excel",
+            data=towrite,
+            file_name="filtered_parts_usage.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
         # Most Used Spare Parts
         top_parts = (
