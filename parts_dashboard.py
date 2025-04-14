@@ -37,6 +37,7 @@ if uploaded_file:
                 return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', '')
         df[['סוג מערכת', 'תאור מערכת']] = df.apply(map_unit_category, axis=1, result_type="expand")
         df['כמות בפועל'] = pd.to_numeric(df['כמות בפועל'], errors="coerce").fillna(0)
+        df = df[df['כמות בפועל'] >= 0]  # Skip negative quantities
 
         st.header("📦 Used Spare Parts Summary")
         parts_summary = (
