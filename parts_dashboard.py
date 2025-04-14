@@ -21,21 +21,20 @@ if uploaded_file:
 
         def map_unit_category(row):
             part_code = str(row.get('מק"ט בטיפול', '')).upper()
-            if any(x in part_code for x in ["200P", "300P", "PRO"]):
-            elif part_code = "PO-POL-A-D200/F":
-                return "DX00", "DX00 Distribution Cabinet"
-            if any(x in part_code for x in ["200P", "300P", "PRO"]):
-                return "DX00 PRO", "DX00 PRO Distribution Cabinet"
-            elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
-            elif any(x in part_code for x in ["310P", "31XP"]):
-                return "R310 PRO", "R310 PRO Return Unit"
-            elif any(x in part_code for x in ["R31X", "R310", "R300", "R310X"]) and not any(x in part_code for x in ["PRO", "P"]):
-                return "R310", "R310 Return Unit"
-            elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
-                return "R110", "R110 Return Unit"
+            if any(x in part_code for x in ['200P', '300P', 'PRO']):
+                return 'DX00 PRO', 'DX00 PRO Distribution Cabinet'
+            elif any(x in part_code for x in ['D200', 'D300']) and not any(x in part_code for x in ['PRO', 'P']):
+                return 'DX00', 'DX00 Distribution Cabinet'
+            elif part_code == 'PO-POL-A-D200/F':
+                return 'DX00', 'DX00 Distribution Cabinet'
+            elif any(x in part_code for x in ['310P', '31XP']):
+                return 'R310 PRO', 'R310 PRO Return Unit'
+            elif any(x in part_code for x in ['R31X', 'R310', 'R300', 'R310X']) and not any(x in part_code for x in ['PRO', 'P']):
+                return 'R310', 'R310 Return Unit'
+            elif any(x in part_code for x in ['R11X', 'R110', 'R100', 'R110X']) and not any(x in part_code for x in ['PRO', 'P']):
+                return 'R110', 'R110 Return Unit'
             else:
                 return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', '')
-
         df[['סוג מערכת', 'תאור מערכת']] = df.apply(map_unit_category, axis=1, result_type="expand")
         df['כמות בפועל'] = pd.to_numeric(df['כמות בפועל'], errors="coerce").fillna(0)
 
