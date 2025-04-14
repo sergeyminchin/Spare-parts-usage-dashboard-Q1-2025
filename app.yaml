@@ -1,0 +1,11 @@
+runtime: python310
+entrypoint: streamlit run parts_dashboard.py --server.port=$PORT --server.headless=true
+
+instance_class: F2
+
+env_variables:
+  PYTHONUNBUFFERED: 'true'
+
+handlers:
+  - url: /.*
+    script: auto
