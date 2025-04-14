@@ -32,9 +32,9 @@ if uploaded_file:
             elif any(x in part_code for x in ["R11X", "R110", "R100", "R110X"]) and not any(x in part_code for x in ["PRO", "P"]):
                 return "R110", "R110 Return Unit"
             else:
-                return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', "")
+                return row.get('מק"ט בטיפול', ''), row.get('תאור מוצר בטיפול', '')
 
-        df[['סוג מערכת', "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
+        df[['סוג מערכת', 'תאור מערכת']] = df.apply(map_unit_category, axis=1, result_type="expand")
         df['כמות בפועל'] = pd.to_numeric(df['כמות בפועל'], errors="coerce").fillna(0)
 
         st.header("📦 Used Spare Parts Summary")
@@ -73,7 +73,9 @@ if uploaded_file:
 
         st.header("👨‍🔧 Export Parts by Technician")
         tech_options = ["All"] + sorted(df['לטיפול'].dropna().unique())
-towrite_tech = BytesIO()
+        selected_tech = st.selectbox("Select Technician", options=tech_options)
+
+        towrite_tech = BytesIO()
         with pd.ExcelWriter(towrite_tech, engine="xlsxwriter") as writer:
             if selected_tech == "All":
                 for tech, group in df.groupby('לטיפול'):
@@ -93,6 +95,7 @@ towrite_tech = BytesIO()
                     .reset_index(name="Total Used")
                 )
                 summary.to_excel(writer, sheet_name=str(selected_tech)[:31], index=False)
+        towrite_tech.seek(0)
         st.download_button("📥 Download Technician Summary", data=towrite_tech, file_name="parts_by_technician.xlsx")
 
     except Exception as e:
