@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 from PIL import Image
 
-st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
+st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="politex.ico")
 
 try:
     logo = Image.open("logo.png")
