@@ -66,7 +66,7 @@ if uploaded_file:
 
         # Most Used Spare Parts
         top_parts = (
-            filtered_df.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+            filtered_df.groupby(['מק"ט - חלק', "תאור מוצר - חלק"])['כמות בפועל']
             .sum()
             .reset_index(name="Total Used")
             .sort_values(by="Total Used", ascending=False)
