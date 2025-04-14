@@ -48,10 +48,18 @@ if uploaded_file:
         part_names = df["תאור מוצר - חלק"].dropna().unique()
         systems = df["סוג מערכת"].dropna().unique()
 
-        selected_techs = st.multiselect("👨‍🔧 Select Technicians", options=techs, default=techs)
-        selected_customers = st.multiselect("🏥 Select Customers", options=customers, default=customers)
-        selected_parts = st.multiselect("🔩 Select Part Descriptions", options=part_names, default=part_names)
-        selected_systems = st.multiselect("📦 Select System Types", options=systems, default=systems)
+        selected_techs = selected_tech = st.selectbox("👨‍🔧 Select Technician", options=["All"] + list(techs))
+        if selected_tech != "All":
+            df = df[df["לטיפול"] == selected_tech]
+        selected_customers = selected_customer = st.selectbox("🏥 Select Customer", options=["All"] + list(customers))
+        if selected_customer != "All":
+            df = df[df["שם לקוח"] == selected_customer]
+        selected_parts = selected_part = st.selectbox("🔩 Select Part Description", options=["All"] + list(part_names))
+        if selected_part != "All":
+            df = df[df["תאור מוצר - חלק"] == selected_part]
+        selected_systems = selected_sys = st.selectbox("📦 Select System Type", options=["All"] + list(systems))
+        if selected_sys != "All":
+            df = df[df["סוג מערכת"] == selected_sys]
 
         filtered_df = df[
             (df["לטיפול"].isin(selected_techs)) &
@@ -62,18 +70,6 @@ if uploaded_file:
 
         st.markdown(f"📦 **Total Parts Records:** {len(filtered_df)}")
         st.markdown(f"🧮 **Total Quantity Used:** {filtered_df['כמות בפועל'].sum():,.0f}")
-# Export final filtered data
-        from io import BytesIO
-        towrite = BytesIO()
-        with pd.ExcelWriter(towrite, engine='xlsxwriter') as writer:
-            filtered_df.to_excel(writer, index=False, sheet_name="Filtered Data")
-        towrite.seek(0)
-        st.download_button(
-            label="📥 Download Filtered Data as Excel",
-            data=towrite,
-            file_name="filtered_parts_usage.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
 
         # Most Used Spare Parts
         top_parts = (
