@@ -26,7 +26,6 @@ if uploaded_file:
                 return "DX00", "DX00 Distribution Cabinet"
                 return "DX00 PRO", "DX00 PRO Distribution Cabinet"
             elif any(x in part_code for x in ["D200", "D300"]) and not any(x in part_code for x in ["PRO", "P"]):
-                return "DX00", "DX00 Distribution Cabinet"
             elif any(x in part_code for x in ["310P", "31XP"]):
                 return "R310 PRO", "R310 PRO Return Unit"
             elif any(x in part_code for x in ["R31X", "R310", "R300", "R310X"]) and not any(x in part_code for x in ["PRO", "P"]):
