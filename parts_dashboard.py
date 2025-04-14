@@ -73,12 +73,11 @@ if uploaded_file:
 
         st.header("👨‍🔧 Export Parts by Technician")
         tech_options = ["All"] + sorted(df['לטיפול'].dropna().unique())
-        selected_tech = st.selectbox("Select Technician", options=tech_options)
-
-        towrite_tech = BytesIO()
+towrite_tech = BytesIO()
         with pd.ExcelWriter(towrite_tech, engine="xlsxwriter") as writer:
             if selected_tech == "All":
                 for tech, group in df.groupby('לטיפול'):
+                    group = group[group['כמות בפועל'] > 0]
                     summary = (
                         group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                         .sum()
@@ -87,13 +86,13 @@ if uploaded_file:
                     summary.to_excel(writer, sheet_name=str(tech)[:31], index=False)
             else:
                 group = df[df['לטיפול'] == selected_tech]
+                group = group[group['כמות בפועל'] > 0]
                 summary = (
                     group.groupby(['מק"ט - חלק', 'תאור מוצר - חלק'])['כמות בפועל']
                     .sum()
                     .reset_index(name="Total Used")
                 )
                 summary.to_excel(writer, sheet_name=str(selected_tech)[:31], index=False)
-        towrite_tech.seek(0)
         st.download_button("📥 Download Technician Summary", data=towrite_tech, file_name="parts_by_technician.xlsx")
 
     except Exception as e:
