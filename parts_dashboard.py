@@ -1,6 +1,5 @@
-st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
-
 import streamlit as st
+st.set_page_config(page_title="Spare Parts Dashboard", layout="wide", page_icon="logo.png")
 import pandas as pd
 import plotly.express as px
 
