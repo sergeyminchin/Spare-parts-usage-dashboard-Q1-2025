@@ -50,6 +50,7 @@ if uploaded_file:
 
         selected_techs = selected_tech = st.selectbox("👨‍🔧 Select Technician", options=["All"] + list(techs))
         if selected_tech != "All":
+        filtered_df = df.copy()
             filtered_df = filtered_df[filtered_df["לטיפול"] == selected_tech]
         selected_customers = selected_customer = st.selectbox("🏥 Select Customer", options=["All"] + list(customers))
         if selected_customer != "All":
