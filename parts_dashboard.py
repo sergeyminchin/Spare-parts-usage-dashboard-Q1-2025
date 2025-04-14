@@ -34,12 +34,12 @@ if uploaded_file:
             else:
                 return row.get("מק"ט בטיפול", ""), row.get('תאור מוצר בטיפול', "")
 
-        df[["סוג מערכת", "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
-        df["כמות בפועל"] = pd.to_numeric(df["כמות בפועל"], errors="coerce").fillna(0)
+        df[['סוג מערכת', "תאור מערכת"]] = df.apply(map_unit_category, axis=1, result_type="expand")
+        df['כמות בפועל'] = pd.to_numeric(df['כמות בפועל'], errors="coerce").fillna(0)
 
         st.header("📦 Used Spare Parts Summary")
         parts_summary = (
-            df.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+            df.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
             .sum()
             .reset_index(name="Total Used")
             .sort_values(by="Total Used", ascending=False)
@@ -47,23 +47,23 @@ if uploaded_file:
         st.dataframe(parts_summary)
 
         st.header("🧰 Export Parts by System")
-        system_options = ["All"] + sorted(df["סוג מערכת"].dropna().unique())
+        system_options = ["All"] + sorted(df['סוג מערכת'].dropna().unique())
         selected_system = st.selectbox("Select System Type", options=system_options)
 
         towrite_sys = BytesIO()
         with pd.ExcelWriter(towrite_sys, engine="xlsxwriter") as writer:
             if selected_system == "All":
-                for sys, group in df.groupby("סוג מערכת"):
+                for sys, group in df.groupby('סוג מערכת'):
                     summary = (
-                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
                         .sum()
                         .reset_index(name="Total Used")
                     )
                     summary.to_excel(writer, sheet_name=str(sys)[:31], index=False)
             else:
-                group = df[df["סוג מערכת"] == selected_system]
+                group = df[df['סוג מערכת'] == selected_system]
                 summary = (
-                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
                     .sum()
                     .reset_index(name="Total Used")
                 )
@@ -72,23 +72,23 @@ if uploaded_file:
         st.download_button("📥 Download System Summary", data=towrite_sys, file_name="parts_by_system.xlsx")
 
         st.header("👨‍🔧 Export Parts by Technician")
-        tech_options = ["All"] + sorted(df["לטיפול"].dropna().unique())
+        tech_options = ["All"] + sorted(df['לטיפול'].dropna().unique())
         selected_tech = st.selectbox("Select Technician", options=tech_options)
 
         towrite_tech = BytesIO()
         with pd.ExcelWriter(towrite_tech, engine="xlsxwriter") as writer:
             if selected_tech == "All":
-                for tech, group in df.groupby("לטיפול"):
+                for tech, group in df.groupby('לטיפול'):
                     summary = (
-                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                        group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
                         .sum()
                         .reset_index(name="Total Used")
                     )
                     summary.to_excel(writer, sheet_name=str(tech)[:31], index=False)
             else:
-                group = df[df["לטיפול"] == selected_tech]
+                group = df[df['לטיפול'] == selected_tech]
                 summary = (
-                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])["כמות בפועל"]
+                    group.groupby(["מק"ט - חלק", "תאור מוצר - חלק"])['כמות בפועל']
                     .sum()
                     .reset_index(name="Total Used")
                 )
